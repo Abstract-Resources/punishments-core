@@ -1,0 +1,14 @@
+provider:
+  type: "MySQL"
+
+  mysql:
+    address: "127.0.0.1:3306"
+    username: "root"
+    password: ""
+    dbname: "ab_punishments"
+
+  mongodb:
+    address: "127.0.0.1"
+    username: "admin"
+    password: ""
+    dbname: "abstract_punishments"
