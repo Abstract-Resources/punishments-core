@@ -1,6 +1,10 @@
 package dev.aabstractt.punishments;
 
+import dev.aabstractt.punishments.listener.PlayerDisconnectListener;
+import dev.aabstractt.punishments.listener.PlayerPreLoginListener;
 import dev.waterdog.waterdogpe.ProxyServer;
+import dev.waterdog.waterdogpe.event.defaults.PlayerDisconnectEvent;
+import dev.waterdog.waterdogpe.event.defaults.PlayerPreLoginEvent;
 import dev.waterdog.waterdogpe.plugin.Plugin;
 import dev.waterdog.waterdogpe.utils.config.Configuration;
 
@@ -26,6 +30,9 @@ public final class WaterdogPlugin extends Plugin {
 
             return;
         }
+
+        this.getProxy().getEventManager().subscribe(PlayerPreLoginEvent.class, PlayerPreLoginListener::onPlayerPreLoginEvent);
+        this.getProxy().getEventManager().subscribe(PlayerDisconnectEvent.class, PlayerDisconnectListener::onPlayerDisconnectEvent);
 
         // TODO: Load the listeners
     }

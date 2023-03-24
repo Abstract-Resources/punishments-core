@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor @Getter
 public abstract class BaseCommand<T> {
@@ -18,5 +19,5 @@ public abstract class BaseCommand<T> {
 
     public abstract void execute(@NonNull AbstractSender sender, @NonNull String commandName, @Nullable T target, @NonNull String[] args);
 
-    public abstract @Nullable T parseTarget(@NonNull String argument);
+    public abstract void attemptParseArgument(@NonNull String argument, CompletableFuture<T> completableFuture);
 }

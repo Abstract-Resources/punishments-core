@@ -21,46 +21,76 @@ public final class ProfileFactory {
     private final static @NonNull String LOAD_PROFILE_STATEMENT = "load_profile";
     private final static @NonNull String UPDATE_PROFILE_STATEMENT = "update_profile";
 
-    /**
-     * @param sender  Sender is the Player instance
-     */
-    public void loadProfile(@NonNull AbstractSender sender) {
-        if (!AbstractPlugin.getInstance().isLoaded()) return;
+    public @Nullable Profile loadProfile(@NonNull String id) {
+        if (!AbstractPlugin.getInstance().isLoaded()) return null;
 
         QueryDocument queryDocument = AbstractPlugin.getDataSource().getQueryDocument(QueryDocument.builder()
                 .collection(PROFILE_COLLECTION)
                 .statement(LOAD_PROFILE_STATEMENT)
-                .append(0, "id", sender.getId())
+                .append(0, "id", id)
                 .build()
         );
 
-        @Nullable String currentAddress = queryDocument != null ? queryDocument.getStringNonNull("current_address") : null;
-        sender.setLastAddress(
-                currentAddress != null && currentAddress.equals(sender.getCurrentAddress()) ? queryDocument.getStringNonNull("last_address") : currentAddress
+        if (queryDocument == null) return null;
+
+        String currentStoredAddress = queryDocument.getStringNonNull("current_address");
+        String currentStoredName = queryDocument.getStringNonNull("username");
+
+        return this.loadProfile(
+                id,
+                currentStoredName,
+                currentStoredAddress,
+                currentStoredName,
+                currentStoredAddress
         );
-
-        String currentName = queryDocument != null ? queryDocument.getStringNonNull("username") : null;
-        if (currentName == null || !currentName.equalsIgnoreCase(sender.getName())) {
-            this.storeProfile(sender);
-        }
-
-        Profile.store(new Profile(
-                sender,
-                queryDocument != null ? PunishmentFactory.getInstance().loadPunishments(sender.getId()) : new HashSet<>()
-        ));
     }
 
-    public void storeProfile(@NonNull AbstractSender sender) {
+    public @Nullable Profile loadProfile(@NonNull String id, @NonNull String currentName, @NonNull String currentAddress) {
+        if (!AbstractPlugin.getInstance().isLoaded()) return null;
+
+        QueryDocument queryDocument = AbstractPlugin.getDataSource().getQueryDocument(QueryDocument.builder()
+                .collection(PROFILE_COLLECTION)
+                .statement(LOAD_PROFILE_STATEMENT)
+                .append(0, "id", id)
+                .build()
+        );
+
+        if (queryDocument == null) return null;
+
+        String currentStoredAddress = queryDocument.getStringNonNull("current_address");
+        String currentStoredName = queryDocument.getStringNonNull("username");
+
+        return this.loadProfile(
+                id,
+                currentName,
+                currentAddress,
+                currentStoredName,
+                currentStoredAddress
+        );
+    }
+
+    public @NonNull Profile loadProfile(@NonNull String id, @NonNull String currentName, @NonNull String currentAddress, @NonNull String currentStoredName, @NonNull String currentStoredAddress) {
+        return new Profile(
+                id,
+                currentName,
+                currentStoredName.equals(currentName) ? currentName : currentStoredName,
+                currentAddress,
+                currentStoredAddress.equalsIgnoreCase(currentAddress) ? currentAddress : currentStoredAddress,
+                new HashSet<>()
+        );
+    }
+
+    public void updateProfile(@NonNull Profile profile) {
         if (!AbstractPlugin.getInstance().isLoaded()) return;
 
         AbstractPlugin.getDataSource().storeQueryDocument(QueryDocument.builder()
                 .collection(PROFILE_COLLECTION)
                 .statement(UPDATE_PROFILE_STATEMENT)
-                .append(0, "id", sender.getId())
-                .append(1, "username", sender.getName())
-                .append(2, "last_name", sender.getLastName())
-                .append(3, "current_address", sender.getCurrentAddress())
-                .append(4, "last_address", sender.getLastAddress())
+                .append(0, "id", profile.getId())
+                .append(1, "username", profile.getName())
+                .append(2, "last_name", profile.getLastName())
+                .append(3, "current_address", profile.getCurrentAddress())
+                .append(4, "last_address", profile.getLastAddress())
                 .append(5, "last_logout", null)
                 .build()
         );

@@ -1,33 +1,47 @@
 package dev.aabstractt.punishments.object;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
+import com.google.common.collect.Maps;
+import lombok.*;
 
 import javax.annotation.Nullable;
+import java.util.Map;
 
-@AllArgsConstructor @Getter
+@AllArgsConstructor @Data
 public abstract class AbstractSender {
 
-    private final @NonNull String id;
-    @Setter private @NonNull String name;
-    @Setter private @Nullable String lastName;
+    private final static @NonNull Map<String, AbstractSender> sendersStored = Maps.newConcurrentMap();
+    private final static @NonNull Map<String, String> idsStored = Maps.newConcurrentMap();
 
-    private final @NonNull String currentAddress;
-    @Setter private @Nullable String lastAddress;
-
-    /**
-     * if return true I'm going to call {@link AbstractSender#setName(String)} with the new name
-     * and {@link AbstractSender#setLastName(String)} with the current profile name
-     * @param updatedName String
-     * @return boolean
-     */
-    public boolean isOutdated(String updatedName) {
-        return !this.name.equalsIgnoreCase(updatedName);
-    }
+    protected final @NonNull Profile profile;
 
     public abstract void kick(@NonNull String message);
 
     public abstract void sendMessage(@NonNull String message);
+
+    public static void store(@NonNull AbstractSender abstractSender) {
+        Profile profile = abstractSender.getProfile();
+
+        sendersStored.put(profile.getId(), abstractSender);
+        idsStored.put(profile.getName().toLowerCase(), profile.getId());
+    }
+
+    public static void flush(@NonNull String id) {
+        AbstractSender abstractSender = sendersStored.get(id);
+
+        if (abstractSender == null) return;
+
+        // TODO: Flush all profile object cache
+        abstractSender.getProfile().getPunishments().clear();
+
+        sendersStored.remove(id);
+    }
+
+    public static @Nullable AbstractSender getIfLoaded(@NonNull String idOrName) {
+        AbstractSender abstractSender = sendersStored.get(idOrName);
+
+        if (abstractSender != null) return abstractSender;
+
+        idOrName = idsStored.get(idOrName);
+        return idOrName != null ? getIfLoaded(idOrName) : null;
+    }
 }

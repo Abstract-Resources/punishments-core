@@ -1,12 +1,14 @@
 package dev.aabstractt.punishments.command.defaults;
 
 import dev.aabstractt.punishments.command.BaseCommand;
+import dev.aabstractt.punishments.factory.ProfileFactory;
 import dev.aabstractt.punishments.object.AbstractSender;
 import dev.aabstractt.punishments.object.Profile;
 import lombok.NonNull;
 
 import javax.annotation.Nullable;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public final class BanCommand extends BaseCommand<Profile> {
 
@@ -20,7 +22,25 @@ public final class BanCommand extends BaseCommand<Profile> {
     }
 
     @Override
-    public @Nullable Profile parseTarget(@NonNull String argument) {
-        return Profile.getIfLoaded(argument);
+    public void attemptParseArgument(@NonNull String argument, CompletableFuture<Profile> completableFuture) {
+        AbstractSender abstractSender = AbstractSender.getIfLoaded(argument);
+
+        if (abstractSender != null) {
+            completableFuture.complete(abstractSender.getProfile());
+
+            return;
+        }
+
+        CompletableFuture.runAsync(() -> {
+            Profile profile = ProfileFactory.getInstance().loadProfile(argument);
+
+            if (profile == null) {
+                completableFuture.completeExceptionally(new RuntimeException("Player not found"));
+
+                return;
+            }
+
+            completableFuture.complete(profile);
+        });
     }
 }
