@@ -3,7 +3,7 @@ package dev.aabstractt.punishments.object;
 import dev.aabstractt.punishments.datasource.DataSourceException;
 import lombok.*;
 
-@RequiredArgsConstructor (access = AccessLevel.PRIVATE) @Getter @Builder
+@RequiredArgsConstructor (access = AccessLevel.PRIVATE) @Data @Builder
 public final class Punishment {
 
     private final @NonNull PunishmentType type;
@@ -56,6 +56,18 @@ public final class Punishment {
             if (type.equals("UB")) return UNBAN;
 
             throw new DataSourceException("An invalid Punishment Type received.");
+        }
+
+        public @NonNull String toString() {
+            if (this.equals(KICK)) return "K";
+            if (this.equals(WARN)) return "W";
+            if (this.equals(UNWARN)) return "UW";
+            if (this.equals(MUTE)) return "M";
+            if (this.equals(UNMUTE)) return "UM";
+            if (this.equals(BAN)) return "B";
+            if (this.equals(UNBAN)) return "UB";
+
+            throw new DataSourceException("Please provide a valid Punishment");
         }
     }
 }
