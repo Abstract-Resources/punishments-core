@@ -52,7 +52,7 @@ public final class AbstractPlugin {
         return dataSource;
     }
 
-    public boolean isLoaded() {
+    public boolean disabled() {
         return this.pluginConfig != null;
     }
 }

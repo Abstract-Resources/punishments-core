@@ -21,7 +21,7 @@ public final class ProfileFactory {
     private final static @NonNull String UPDATE_PROFILE_STATEMENT = "update_profile";
 
     public @Nullable Profile loadProfile(@NonNull String currentName) {
-        if (!AbstractPlugin.getInstance().isLoaded()) return null;
+        if (AbstractPlugin.getInstance().disabled()) return null;
 
         QueryDocument queryDocument = AbstractPlugin.getDataSource().getQueryDocument(QueryDocument.builder()
                 .collection(PROFILE_COLLECTION)
@@ -45,7 +45,7 @@ public final class ProfileFactory {
     }
 
     public @Nullable Profile loadProfile(@NonNull String id, @NonNull String currentName, @NonNull String currentAddress) {
-        if (!AbstractPlugin.getInstance().isLoaded()) return null;
+        if (AbstractPlugin.getInstance().disabled()) return null;
 
         QueryDocument queryDocument = AbstractPlugin.getDataSource().getQueryDocument(QueryDocument.builder()
                 .collection(PROFILE_COLLECTION)
@@ -80,7 +80,7 @@ public final class ProfileFactory {
     }
 
     public void updateProfile(@NonNull Profile profile) {
-        if (!AbstractPlugin.getInstance().isLoaded()) return;
+        if (AbstractPlugin.getInstance().disabled()) return;
 
         AbstractPlugin.getDataSource().storeQueryDocument(QueryDocument.builder()
                 .collection(PROFILE_COLLECTION)

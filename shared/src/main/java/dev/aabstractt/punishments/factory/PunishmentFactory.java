@@ -22,7 +22,7 @@ public final class PunishmentFactory {
     private final static @NonNull String LOAD_PUNISHMENTS_STATEMENT = "load_punishments";
 
     public @NonNull Set<Punishment> loadPunishments(@NonNull String id) {
-        if (!AbstractPlugin.getInstance().isLoaded()) return new HashSet<>();
+        if (AbstractPlugin.getInstance().disabled()) return new HashSet<>();
 
         Set<QueryDocument> queryDocuments = AbstractPlugin.getDataSource().getQueryDocuments(QueryDocument.builder()
                 .collection(PUNISHMENTS_COLLECTION)

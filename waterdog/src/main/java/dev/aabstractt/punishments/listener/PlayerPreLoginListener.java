@@ -15,7 +15,7 @@ import java.util.HashSet;
 public final class PlayerPreLoginListener {
 
     public static void onPlayerPreLoginEvent(PlayerPreLoginEvent ev) {
-        if (!AbstractPlugin.getInstance().isLoaded()) {
+        if (AbstractPlugin.getInstance().disabled()) {
             ev.setCancelReason(Color.RED + "Please wait while load AbstractPunishments!");
 
             ev.setCancelled(true);
