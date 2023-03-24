@@ -12,25 +12,24 @@ import java.util.concurrent.CompletableFuture;
 
 public final class BanCommand extends BaseCommand<Profile> {
 
-    public BanCommand(@NonNull String name, @NonNull String permission, Set<String> aliases) {
-        super(name, permission, aliases);
+    public BanCommand(@NonNull String name, @NonNull String permission, Set<String> aliases, Integer minArgs, @Nullable String usage) {
+        super(name, permission, aliases, minArgs, usage);
     }
 
     @Override
-    public void execute(@NonNull AbstractSender sender, @NonNull String commandName, @Nullable Profile target, @NonNull String[] args) {
+    public void execute(@NonNull AbstractSender sender, @NonNull String commandName, @NonNull Profile target, @NonNull String[] args) {
         // TODO: If target profile is null going to load it but using async to prevent lag spike on the main thread
     }
 
     @Override
-    public void attemptParseArgument(@NonNull String argument, CompletableFuture<Profile> completableFuture) {
+    public @NonNull CompletableFuture<Profile> attemptParseArgument(@NonNull String argument) {
         AbstractSender abstractSender = AbstractSender.getIfLoaded(argument);
 
         if (abstractSender != null) {
-            completableFuture.complete(abstractSender.getProfile());
-
-            return;
+            return CompletableFuture.completedFuture(abstractSender.getProfile());
         }
 
+        CompletableFuture<Profile> completableFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             Profile profile = ProfileFactory.getInstance().loadProfile(argument);
 
@@ -42,5 +41,7 @@ public final class BanCommand extends BaseCommand<Profile> {
 
             completableFuture.complete(profile);
         });
+
+        return completableFuture;
     }
 }

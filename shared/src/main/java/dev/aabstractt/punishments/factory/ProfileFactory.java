@@ -2,7 +2,6 @@ package dev.aabstractt.punishments.factory;
 
 import dev.aabstractt.punishments.AbstractPlugin;
 import dev.aabstractt.punishments.datasource.QueryDocument;
-import dev.aabstractt.punishments.object.AbstractSender;
 import dev.aabstractt.punishments.object.Profile;
 import lombok.Getter;
 import lombok.NonNull;
@@ -21,23 +20,23 @@ public final class ProfileFactory {
     private final static @NonNull String LOAD_PROFILE_STATEMENT = "load_profile";
     private final static @NonNull String UPDATE_PROFILE_STATEMENT = "update_profile";
 
-    public @Nullable Profile loadProfile(@NonNull String id) {
+    public @Nullable Profile loadProfile(@NonNull String currentName) {
         if (!AbstractPlugin.getInstance().isLoaded()) return null;
 
         QueryDocument queryDocument = AbstractPlugin.getDataSource().getQueryDocument(QueryDocument.builder()
                 .collection(PROFILE_COLLECTION)
                 .statement(LOAD_PROFILE_STATEMENT)
-                .append(0, "id", id)
+                .append(0, "current_name", currentName)
                 .build()
         );
 
         if (queryDocument == null) return null;
 
+        String currentStoredName = queryDocument.getStringNonNull("current_name");
         String currentStoredAddress = queryDocument.getStringNonNull("current_address");
-        String currentStoredName = queryDocument.getStringNonNull("username");
 
         return this.loadProfile(
-                id,
+                queryDocument.getStringNonNull("id"),
                 currentStoredName,
                 currentStoredAddress,
                 currentStoredName,
@@ -57,8 +56,8 @@ public final class ProfileFactory {
 
         if (queryDocument == null) return null;
 
+        String currentStoredName = queryDocument.getStringNonNull("current_name");
         String currentStoredAddress = queryDocument.getStringNonNull("current_address");
-        String currentStoredName = queryDocument.getStringNonNull("username");
 
         return this.loadProfile(
                 id,
@@ -87,7 +86,7 @@ public final class ProfileFactory {
                 .collection(PROFILE_COLLECTION)
                 .statement(UPDATE_PROFILE_STATEMENT)
                 .append(0, "id", profile.getId())
-                .append(1, "username", profile.getName())
+                .append(1, "current_name", profile.getName())
                 .append(2, "last_name", profile.getLastName())
                 .append(3, "current_address", profile.getCurrentAddress())
                 .append(4, "last_address", profile.getLastAddress())

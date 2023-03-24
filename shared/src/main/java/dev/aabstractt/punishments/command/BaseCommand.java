@@ -17,7 +17,10 @@ public abstract class BaseCommand<T> {
 
     private final Set<String> aliases;
 
-    public abstract void execute(@NonNull AbstractSender sender, @NonNull String commandName, @Nullable T target, @NonNull String[] args);
+    private final Integer minArgs;
+    private final @Nullable String usage;
 
-    public abstract void attemptParseArgument(@NonNull String argument, CompletableFuture<T> completableFuture);
+    public abstract void execute(@NonNull AbstractSender sender, @NonNull String commandName, @NonNull T target, @NonNull String[] args);
+
+    public abstract @NonNull CompletableFuture<T> attemptParseArgument(@NonNull String argument);
 }
